@@ -508,7 +508,7 @@ document.getElementById("saveShift").addEventListener("click", () => {
   if (!start || !end) return;
   state.shifts[`${editingShift.driverId}:${editingShift.dateKey}`] = { start, end, note, type };
   saveState();
-  render();
+  renderCurrent();
   document.getElementById("shiftDialog").close();
 });
 
@@ -516,7 +516,7 @@ document.getElementById("deleteShift").addEventListener("click", () => {
   if (!editingShift) return;
   delete state.shifts[`${editingShift.driverId}:${editingShift.dateKey}`];
   saveState();
-  render();
+  renderCurrent();
   document.getElementById("shiftDialog").close();
 });
 
@@ -661,7 +661,7 @@ document.getElementById("saveDriver").addEventListener("click", () => {
     Object.assign(d, payload);
   }
   saveState();
-  render();
+  renderCurrent();
   document.getElementById("driverDialog").close();
 });
 
@@ -674,7 +674,7 @@ document.getElementById("deleteDriver").addEventListener("click", () => {
     if (k.startsWith(editingDriver + ":")) delete state.shifts[k];
   }
   saveState();
-  render();
+  renderCurrent();
   document.getElementById("driverDialog").close();
 });
 
@@ -691,7 +691,7 @@ document.getElementById("generatePlan").addEventListener("click", () => {
   saveState();
   generatePlanForDriver(d, anchor);
   viewMode = "month";
-  render();
+  renderCurrent();
   document.getElementById("driverDialog").close();
 });
 
@@ -850,6 +850,11 @@ function generatePlanForAll() {
 }
 
 // ---------- Nav & misc ----------
+
+function renderCurrent() {
+  if (appMode === "stunden") renderStundenView();
+  else render();
+}
 
 function autoGrow(el) {
   el.style.height = "auto";
