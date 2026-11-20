@@ -1138,7 +1138,6 @@ function stundenzettelBodyHTML(driver, month) {
     <div class="info">
       <div><b>Arbeitnehmer:in</b><span>${esc(driver.name)}</span></div>
       <div><b>Stundenlohn</b><span class="val">${fmtEuro2(driver.hourlyRate)}</span></div>
-      <div><b>Soll-Stunden</b><span class="val">${de(sollH)} h</span></div>
     </div>
     <table>
       <thead><tr>
@@ -1147,16 +1146,12 @@ function stundenzettelBodyHTML(driver, month) {
       <tbody>${rowsHtml || '<tr><td colspan="7" style="text-align:center;color:#999;padding:20px">Keine Schichten in diesem Monat</td></tr>'}</tbody>
     </table>
     <div class="totals">
-      <div class="totals-row"><span>Ist-Stunden</span><span class="val">${de(totalWork)} h</span></div>
-      <div class="totals-row"><span>Soll-Stunden</span><span class="val">${de(sollH)} h</span></div>
-      <div class="totals-row"><span>Differenz</span><span class="val">${de(totalWork - sollH)} h</span></div>
       <div class="totals-row"><span>Grundlohn</span><span class="val">${fmtEuro2(totalWage - totalBonus)}</span></div>
       <div class="totals-row"><span>Zuschläge §3b EStG</span><span class="val">${fmtEuro2(totalBonus)}</span></div>
       <div class="totals-row big"><span>Gesamtlohn</span><span class="val">${fmtEuro2(totalWage)}</span></div>
     </div>
-    <div class="signatures">
+    <div class="signatures single">
       <div class="sig">Datum, Unterschrift Arbeitnehmer:in</div>
-      <div class="sig">Datum, Unterschrift Arbeitgeber:in</div>
     </div>
   </section>`;
 }
@@ -1182,7 +1177,7 @@ function stundenzettelWindowHTML(title, bodyContent, previewLabel) {
     .header { border-bottom: 2px solid #333; padding-bottom: 12px; margin-bottom: 20px; }
     .header h1 { margin: 0 0 4px; font-size: 20px; letter-spacing: 0.02em; }
     .header .sub { color: #666; font-size: 13px; }
-    .info { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    .info { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
     .info b { color: #666; font-weight: 500; display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px; }
     .info span { font-size: 14px; font-weight: 500; }
     .info .val { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
@@ -1195,6 +1190,7 @@ function stundenzettelWindowHTML(title, bodyContent, previewLabel) {
     .totals-row.big { font-size: 15px; font-weight: 600; border-top: 1px solid #999; padding-top: 6px; margin-top: 6px; }
     .totals-row .val { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
     .signatures { margin-top: 48px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+    .signatures.single { grid-template-columns: 1fr; max-width: 50%; }
     .sig { border-top: 1px solid #333; padding-top: 6px; font-size: 10px; color: #666; }
     @media print {
       body { background: white; }
