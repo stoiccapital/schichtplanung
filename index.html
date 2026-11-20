@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Schichtplanung</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <nav class="app-tabs no-print">
+    <button data-mode="schicht" class="active">Schichtplanung</button>
+    <button data-mode="stunden">Stundenzettel</button>
+  </nav>
+
+  <section id="schichtView">
+    <header class="topbar no-print">
+      <div class="view-toggle">
+        <button id="viewWeek" class="active">Woche</button>
+        <button id="viewMonth">Monat</button>
+      </div>
+
+      <div class="period-nav">
+        <button id="prevPeriod" aria-label="Zurück">‹</button>
+        <span id="periodLabel"></span>
+        <button id="nextPeriod" aria-label="Weiter">›</button>
+      </div>
+
+      <div class="topbar-actions">
+        <button id="addDriver">+ Fahrer</button>
+        <button id="generateAll">Plan für alle</button>
+        <button id="exportCsv">CSV</button>
+        <button id="exportXls">Excel</button>
+        <button id="printBtn" class="primary">PDF</button>
+      </div>
+    </header>
+
+    <div class="print-header print-only">
+      <h1>Schichtplanung</h1>
+      <span id="printPeriodLabel"></span>
+    </div>
+
+    <main>
+      <div class="schedule-wrap">
+        <table class="schedule" id="schedule">
+          <thead>
+            <tr id="headerRow"></tr>
+          </thead>
+          <tbody id="scheduleBody"></tbody>
+        </table>
+      </div>
+    </main>
+  </section>
+
+  <section id="stundenView" hidden>
+    <div class="drop-overlay" id="dropOverlay">
+      <div class="drop-overlay-inner">
+        <div class="drop-icon">⬇</div>
+        <div>Datei hier ablegen</div>
+        <div class="drop-hint">CSV oder Excel (.xls)</div>
+      </div>
+    </div>
+    <header class="topbar no-print">
+      <div class="period-nav">
+        <button id="stPrev" aria-label="Zurück">‹</button>
+        <span id="stLabel"></span>
+        <button id="stNext" aria-label="Weiter">›</button>
+      </div>
+
+      <div class="topbar-actions">
+        <button id="importBtn">Import CSV / Excel</button>
+        <input type="file" id="importFile" accept=".csv,.xls,.html,text/csv" hidden />
+        <button id="stClear" class="danger">Monat leeren</button>
+        <button id="stPdfBtn" class="primary">PDF</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="st-intro">
+        Klicke auf eine Fahrer:in-Spalte, um den Stundenzettel zu öffnen.
+        Importiere einen Schichtplan (CSV / Excel) über den Button oder ziehe die Datei einfach hierher,
+        oder nutze die in <b>Schichtplanung</b> erstellten Schichten.
+      </div>
+
+      <div class="schedule-wrap">
+        <table class="schedule month" id="stundenSchedule">
+          <thead>
+            <tr id="stundenHeaderRow"></tr>
+          </thead>
+          <tbody id="stundenScheduleBody"></tbody>
+        </table>
+      </div>
+    </main>
+  </section>
+
+  <dialog id="shiftDialog">
+    <form method="dialog">
+      <h2 id="dialogTitle">Schicht</h2>
+      <label>
+        Schichttyp
+        <select id="shiftType">
+          <option value="frueh">Frühschicht</option>
+          <option value="spaet">Spätschicht</option>
+          <option value="nacht">Nachtschicht</option>
+          <option value="custom">Benutzerdefiniert</option>
+        </select>
+      </label>
+      <div class="row">
+        <label>
+          Von
+          <input type="time" id="shiftStart" value="06:00" />
+        </label>
+        <label>
+          Bis
+          <input type="time" id="shiftEnd" value="14:00" />
+        </label>
+      </div>
+      <label>
+        Notiz
+        <textarea id="shiftNote" rows="1" placeholder="optional"></textarea>
+      </label>
+      <div class="actions">
+        <button type="button" id="deleteShift" class="danger">Löschen</button>
+        <button type="button" id="cancelShift">Abbrechen</button>
+        <button type="button" id="saveShift" class="primary">Speichern</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="driverDialog">
+    <form method="dialog">
+      <h2 id="driverDialogTitle">Fahrer</h2>
+      <label>
+        Name
+        <input type="text" id="driverName" />
+      </label>
+      <div class="row">
+        <label>
+          Gesamtlohn (€/Monat, inkl. Zuschläge)
+          <input type="number" id="driverBrutto" min="0" step="50" />
+        </label>
+        <label>
+          Stundenlohn (€/h)
+          <input type="number" id="driverRate" min="0" step="0.5" />
+        </label>
+      </div>
+      <div class="row">
+        <label>
+          Schichtlänge (Std.)
+          <input type="number" id="driverShiftLen" min="0.5" max="24" step="0.5" />
+        </label>
+        <label>
+          Standard-Schicht
+          <select id="driverDefaultShift">
+            <option value="frueh">Frühschicht</option>
+            <option value="spaet">Spätschicht</option>
+            <option value="nacht">Nachtschicht</option>
+          </select>
+        </label>
+      </div>
+      <div class="field-label">Arbeitstage</div>
+      <div class="weekday-picker" id="driverWorkdays">
+        <label><input type="checkbox" data-day="1" /><span>Mo</span></label>
+        <label><input type="checkbox" data-day="2" /><span>Di</span></label>
+        <label><input type="checkbox" data-day="3" /><span>Mi</span></label>
+        <label><input type="checkbox" data-day="4" /><span>Do</span></label>
+        <label><input type="checkbox" data-day="5" /><span>Fr</span></label>
+        <label><input type="checkbox" data-day="6" /><span>Sa</span></label>
+        <label><input type="checkbox" data-day="0" /><span>So</span></label>
+      </div>
+      <label class="checkbox">
+        <input type="checkbox" id="driverHolidays" />
+        Feiertage einbeziehen
+      </label>
+      <label class="checkbox">
+        <input type="checkbox" id="driverApplyBonuses" />
+        Zuschläge nach §3b EStG (Nacht, Sonn-/Feiertag)
+      </label>
+      <div class="computed" id="driverComputed"></div>
+      <div class="computed" id="driverMonthActual" style="display:none"></div>
+      <div class="actions">
+        <button type="button" id="deleteDriver" class="danger">Löschen</button>
+        <button type="button" id="cancelDriver">Abbrechen</button>
+        <button type="button" id="stundenzettel">Stundenzettel</button>
+        <button type="button" id="generatePlan">Plan generieren</button>
+        <button type="button" id="saveDriver" class="primary">Speichern</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
