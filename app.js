@@ -546,7 +546,7 @@ function openDriverDialog(driverId) {
     ? { id: null, name: "", ...DEFAULT_DRIVER }
     : state.drivers.find((d) => d.id === driverId);
 
-  document.getElementById("driverDialogTitle").textContent = driverId === "new" ? "Neuer Fahrer" : driver.name;
+  document.getElementById("driverDialogTitle").textContent = driverId === "new" ? "Neue:r Mitarbeiter:in" : driver.name;
   document.getElementById("driverName").value = driver.name;
   document.getElementById("driverBrutto").value = driver.brutto;
   document.getElementById("driverRate").value = driver.hourlyRate;
@@ -841,7 +841,7 @@ function generatePlanForDriver(driver, dateInMonth) {
 }
 
 function generatePlanForAll() {
-  if (!confirm(`Plan für alle ${state.drivers.length} Fahrer im ${MONTH_NAMES[anchor.getMonth()]} ${anchor.getFullYear()} generieren? Bestehende Schichten werden überschrieben.`)) {
+  if (!confirm(`Plan für alle ${state.drivers.length} Mitarbeiter:innen im ${MONTH_NAMES[anchor.getMonth()]} ${anchor.getFullYear()} generieren? Bestehende Schichten werden überschrieben.`)) {
     return;
   }
   for (const d of state.drivers) generatePlanForDriver(d, anchor);
@@ -977,7 +977,7 @@ function renderStundenView() {
 // ---------- Exports ----------
 
 const EXPORT_HEADERS = [
-  "Datum", "Wochentag", "Fahrer", "Von", "Bis", "Typ",
+  "Datum", "Wochentag", "Mitarbeiter", "Von", "Bis", "Typ",
   "Pause (min)", "Arbeitsstunden", "Stundenlohn (€)", "Grundlohn (€)",
   "Nacht 25 % (h)", "Nacht 40 % (h)", "Sonntag (h)",
   "Feiertag 125 % (h)", "Feiertag 150 % (h)",
@@ -1237,7 +1237,7 @@ function openStundenzettel(driverId) {
 
 function openAllStundenzettel() {
   if (state.drivers.length === 0) {
-    alert("Keine Fahrer:innen vorhanden.");
+    alert("Keine Mitarbeiter:innen vorhanden.");
     return;
   }
   const monthLabel = `${MONTH_NAMES[anchor.getMonth()]} ${anchor.getFullYear()}`;
@@ -1245,7 +1245,7 @@ function openAllStundenzettel() {
   const html = stundenzettelWindowHTML(
     `Stundenzettel – ${monthLabel}`,
     body,
-    `${state.drivers.length} Fahrer:innen · ${monthLabel}`
+    `${state.drivers.length} Mitarbeiter:innen · ${monthLabel}`
   );
   openInWindow(html);
 }
@@ -1256,7 +1256,7 @@ function clearStundenMonth() {
   const monthPrefix = `${first.getFullYear()}-${String(first.getMonth() + 1).padStart(2, "0")}`;
   const count = Object.keys(state.shifts).filter((k) => k.includes(":" + monthPrefix)).length;
   if (count === 0) { alert(`Keine Schichten im ${label}.`); return; }
-  if (!confirm(`${count} Schichten im ${label} löschen? Fahrer:innen bleiben erhalten.`)) return;
+  if (!confirm(`${count} Schichten im ${label} löschen? Mitarbeiter:innen bleiben erhalten.`)) return;
   for (const k of Object.keys(state.shifts)) {
     if (k.includes(":" + monthPrefix)) delete state.shifts[k];
   }
@@ -1342,14 +1342,14 @@ function applyImportRows(rows) {
   const headers = rows[0].map((h) => (h || "").trim().toLowerCase());
   const col = {
     date: findColumn(headers, ["datum", "date"]),
-    driver: findColumn(headers, ["fahrer", "name", "arbeitnehmer"]),
+    driver: findColumn(headers, ["mitarbeiter", "fahrer", "name", "arbeitnehmer"]),
     start: findColumn(headers, ["von", "beginn", "start"]),
     end: findColumn(headers, ["bis", "ende", "end"]),
     type: findColumn(headers, ["typ", "schicht"]),
     note: findColumn(headers, ["notiz", "bemerkung", "note"]),
   };
   if (col.date < 0 || col.driver < 0 || col.start < 0 || col.end < 0) {
-    throw new Error("Spalten nicht erkannt. Benötigt: Datum, Fahrer, Von, Bis.");
+    throw new Error("Spalten nicht erkannt. Benötigt: Datum, Mitarbeiter, Von, Bis.");
   }
 
   let imported = 0, createdDrivers = 0, skipped = 0;
@@ -1394,7 +1394,7 @@ async function importFile(file) {
     const rows = text.trimStart().startsWith("<") ? parseHTMLTable(text) : parseCSV(text);
     const result = applyImportRows(rows);
     const parts = [`${result.imported} Schichten importiert`];
-    if (result.createdDrivers > 0) parts.push(`${result.createdDrivers} neue Fahrer angelegt`);
+    if (result.createdDrivers > 0) parts.push(`${result.createdDrivers} neue Mitarbeiter:innen angelegt`);
     if (result.skipped > 0) parts.push(`${result.skipped} Zeilen übersprungen`);
     alert(parts.join(", ") + ".");
     if (appMode === "stunden") renderStundenView();
